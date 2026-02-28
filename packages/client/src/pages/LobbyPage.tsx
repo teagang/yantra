@@ -117,10 +117,11 @@ const deco = [
 
 const styles: Record<string, React.CSSProperties> = {
   screen: {
-    height: '100%',
+    minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
     padding: '2rem 1rem',
     gap: '1.5rem',
     background: '#F2EDD7',
