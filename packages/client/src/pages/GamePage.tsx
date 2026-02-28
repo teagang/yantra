@@ -9,6 +9,7 @@ import { ScorePanel } from '../components/ui/ScorePanel.js';
 import { ActionBar } from '../components/ui/ActionBar.js';
 import { PopupOverlay } from '../components/ui/PopupOverlay.js';
 import { SpeedPlayTimer } from '../components/ui/SpeedPlayTimer.js';
+import { PixelCat, PixelPlant, PixelCoffee } from '../components/ui/Decorations.js';
 import type { Tile, GamePlayer } from '@yantra/shared';
 
 const SIDEBAR_W = 200;
@@ -66,6 +67,12 @@ export default function GamePage() {
           myPlayerId={playerId}
           tilesRemaining={tilesRemaining}
         />
+
+        {/* Cozy decorations */}
+        <div style={styles.decoRow}>
+          <PixelPlant />
+          <PixelCoffee />
+        </div>
       </div>
 
       {/* ── Board ──────────────────────────────────────────────── */}
@@ -99,6 +106,11 @@ export default function GamePage() {
         </div>
 
         <ActionBar />
+
+        {/* Cozy cat */}
+        <div style={styles.decoCat}>
+          <PixelCat />
+        </div>
       </div>
 
       <PopupOverlay />
@@ -205,5 +217,21 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     color: '#A89878',
     background: '#D4CCBA',
+  },
+  decoRow: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    gap: '0.25rem',
+    marginTop: 'auto',
+    opacity: 0.75,
+    paddingBottom: '0.25rem',
+  },
+  decoCat: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: 'auto',
+    opacity: 0.75,
+    paddingBottom: '0.25rem',
   },
 };
