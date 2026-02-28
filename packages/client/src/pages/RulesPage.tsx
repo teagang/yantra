@@ -1,84 +1,133 @@
 import { useNavigate } from 'react-router-dom';
 
+const deco = [
+  { x: '43%', y: '27%', s: 44, c: '#B88870', o: 0.18 },
+  { x: '56%', y: '30%', s: 28, c: '#789090', o: 0.13 },
+  { x: '37%', y: '36%', s: 36, c: '#9888A0', o: 0.11 },
+  { x: '61%', y: '33%', s: 52, c: '#B8A068', o: 0.09 },
+  { x: '49%', y: '23%', s: 22, c: '#B88870', o: 0.20 },
+  { x: '53%', y: '42%', s: 18, c: '#789090', o: 0.08 },
+  { x: '40%', y: '22%', s: 30, c: '#B8A068', o: 0.14 },
+  { x: '34%', y: '58%', s: 48, c: '#B88870', o: 0.12 },
+  { x: '63%', y: '55%', s: 34, c: '#9888A0', o: 0.10 },
+  { x: '38%', y: '70%', s: 26, c: '#789090', o: 0.09 },
+  { x: '59%', y: '68%', s: 42, c: '#B8A068', o: 0.08 },
+  { x: '32%', y: '75%', s: 20, c: '#B88870', o: 0.07 },
+  { x: '66%', y: '73%', s: 30, c: '#789090', o: 0.07 },
+  { x: '50%', y: '80%', s: 24, c: '#9888A0', o: 0.06 },
+  { x: '8%',  y: '18%', s: 52, c: '#B8A068', o: 0.11 },
+  { x: '5%',  y: '45%', s: 38, c: '#789090', o: 0.09 },
+  { x: '12%', y: '68%', s: 28, c: '#B88870', o: 0.08 },
+  { x: '18%', y: '85%', s: 44, c: '#9888A0', o: 0.07 },
+  { x: '22%', y: '10%', s: 20, c: '#789090', o: 0.10 },
+  { x: '88%', y: '15%', s: 40, c: '#9888A0', o: 0.10 },
+  { x: '92%', y: '42%', s: 30, c: '#B88870', o: 0.09 },
+  { x: '85%', y: '62%', s: 48, c: '#789090', o: 0.08 },
+  { x: '78%', y: '82%', s: 22, c: '#B8A068', o: 0.07 },
+  { x: '72%', y: '10%', s: 34, c: '#B88870', o: 0.10 },
+  { x: '30%', y: '5%',  s: 32, c: '#B8A068', o: 0.09 },
+  { x: '60%', y: '8%',  s: 20, c: '#789090', o: 0.11 },
+  { x: '45%', y: '92%', s: 36, c: '#B88870', o: 0.06 },
+  { x: '75%', y: '95%', s: 24, c: '#9888A0', o: 0.07 },
+];
+
 export default function RulesPage() {
   const navigate = useNavigate();
 
   return (
     <div style={styles.screen}>
+      {/* Fixed decorative background */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        {deco.map((d, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            left: d.x, top: d.y,
+            width: d.s, height: d.s,
+            background: d.c, opacity: d.o,
+            borderRadius: 4,
+            transform: 'translate(-50%, -50%)',
+          }} />
+        ))}
+      </div>
+
       <div style={styles.header}>
         <button style={styles.back} onClick={() => navigate(-1)}>← Back</button>
         <h1 style={styles.title}>Rules</h1>
       </div>
 
       <div style={styles.content}>
+
         <Section title="Overview">
-          Yantra is a tile-based board game for 2–4 players. Players hold 7 tiles at a time and take
-          turns placing sequences on the board to score points.
+          Yantra is a tile-placement game for 2–4 players. Take turns placing tiles on the board
+          to form valid sequences and score points. The player with the highest score when the
+          game ends wins.
+        </Section>
+
+        <Section title="Tiles">
+          86 tiles total: 4 colours (red, blue, yellow, purple) with values 1–7, plus 4 blank
+          tiles and 2 eight-tiles. Each player holds 7 tiles and draws back up to 7 after each turn.
+          Lower-value tiles are more common than higher-value ones.
         </Section>
 
         <Section title="The Board">
-          The circular board has 167 playing squares and 37 booster squares. The centre star
-          doubles the value of the first sequence played on it. Booster squares:
+          A diamond-shaped grid. Booster squares multiply your score — only new tiles trigger them:
           <ul style={styles.ul}>
-            <li><strong style={{ color: '#4D7A42' }}>2×</strong> — doubles the covering tile's value</li>
-            <li><strong style={{ color: '#2E5230' }}>3×</strong> — triples the covering tile's value</li>
-            <li><strong style={{ color: '#8E5A52' }}>D</strong> — doubles the sequence total</li>
-            <li><strong style={{ color: '#7A3830' }}>T</strong> — triples the sequence total</li>
-            <li><strong style={{ color: '#B07820' }}>★</strong> — doubles the sequence total (first play only)</li>
+            <li><strong style={{ color: '#4D7A42' }}>2×</strong> / <strong style={{ color: '#2E5230' }}>3×</strong> — multiply that single tile's value</li>
+            <li><strong style={{ color: '#8E5A52' }}>D</strong> / <strong style={{ color: '#7A3830' }}>T</strong> — double or triple the whole sequence total</li>
+            <li><strong style={{ color: '#B07820' }}>★</strong> centre star — doubles the sequence (first play only)</li>
           </ul>
-        </Section>
-
-        <Section title="The Tiles">
-          86 tiles total: 4 colours (red, blue, yellow, purple), each with values 1–7 (20 per colour),
-          plus 4 blank tiles and 2 eight-tiles.
-          <br /><br />
-          Tile counts per value: 1×6, 2×4, 3×3, 4×2, 5×2, 6×2, 7×1.
         </Section>
 
         <Section title="Valid Sequences">
-          A sequence must be either:
+          Every group of tiles you place must form one of:
           <ul style={styles.ul}>
-            <li>Ascending or descending consecutive numbers (1-2-3…) in <strong>one colour</strong></li>
-            <li>All the <strong>same number</strong> in any mix of colours</li>
+            <li>Consecutive numbers in <strong>one colour</strong> — e.g. red 3-4-5</li>
+            <li>The <strong>same number</strong> in any colours — e.g. four 6s</li>
           </ul>
-          The 8-tile can extend any sequence containing a 7.
-          Blank tiles can fill a missing number in a sequence.
+          New tiles must connect to existing tiles on the board and must form a valid sequence
+          in every line they touch.
+        </Section>
+
+        <Section title="Special Tiles">
+          <strong>Blank</strong> — substitutes for any missing number in a sequence. You can
+          spend a turn to swap a blank on the board for the real tile it represents.
+          <br /><br />
+          <strong>Eight</strong> — extends any sequence that already contains a 7.
         </Section>
 
         <Section title="Scoring">
-          Score = sum of tile values in the sequence, modified by any booster squares the NEW tiles
-          cover. Bonuses:
+          Add up the values of the tiles you placed, multiplied by any boosters they land on.
+          <br /><br />
+          Bonuses (stack if both apply):
           <ul style={styles.ul}>
-            <li>+20 pts for using all 7 tiles in one turn</li>
-            <li>+20 pts for a 7-tile numerical sequence</li>
-            <li>+40 pts total if both bonuses apply</li>
+            <li><strong>+20</strong> for playing all 7 tiles in one turn</li>
+            <li><strong>+20</strong> for a 7-tile consecutive sequence</li>
           </ul>
         </Section>
 
-        <Section title="Turn">
-          On your turn: place tiles, then refill your hand back to 7. Instead of placing, you may
-          skip your turn or swap any number of tiles (costs your turn).
-        </Section>
-
-        <Section title="Blank Tiles">
-          Play a blank as any missing number to complete a sequence. Blanks used at intersections
-          become locked. You may spend a turn to swap a blank on the board for the tile it represents.
+        <Section title="Your Turn">
+          Choose one of:
+          <ul style={styles.ul}>
+            <li><strong>Place</strong> — play one or more tiles, then draw back to 7</li>
+            <li><strong>Swap</strong> — discard any tiles and draw the same number of new ones</li>
+            <li><strong>Skip</strong> — pass your turn</li>
+          </ul>
         </Section>
 
         <Section title="End of Game">
           The game ends when a player uses their last tile, or all players pass twice in a row.
           <ul style={styles.ul}>
-            <li>Finishing player: adds remaining tile values from all opponents to their score</li>
-            <li>Opponents: subtract their remaining tile values from their score</li>
-            <li>If no one finishes: all players subtract their remaining tile values</li>
+            <li>Player who finishes: gains the sum of all opponents' remaining tile values</li>
+            <li>All others: lose the sum of their own remaining tile values</li>
+            <li>If no one finishes: everyone loses their remaining tile values</li>
           </ul>
-          Highest total wins.
         </Section>
 
         <Section title="Speed Play">
-          With Speed Play enabled, each player has 60 seconds per turn. If time runs out, the opponent
+          Each turn has a 60-second timer. If time runs out before you play, your opponent
           receives +5 bonus points.
         </Section>
+
       </div>
     </div>
   );
@@ -86,11 +135,11 @@ export default function RulesPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: '1.5rem' }}>
-      <h2 style={{ fontFamily: "'Pixelify Sans', sans-serif", color: '#3B281B', fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+    <div style={{ marginBottom: '1.75rem' }}>
+      <h2 style={{ fontFamily: "'Pixelify Sans', sans-serif", color: '#3B281B', fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
         {title}
       </h2>
-      <div style={{ color: '#5A4A38', fontSize: '0.9rem', lineHeight: 1.7 }}>{children}</div>
+      <div style={{ color: '#5A4A38', fontSize: '0.9rem', lineHeight: 1.75 }}>{children}</div>
     </div>
   );
 }
@@ -99,8 +148,8 @@ const styles: Record<string, React.CSSProperties> = {
   screen: {
     height: '100%',
     overflowY: 'auto',
-    backgroundColor: '#F2EDD7',
-    backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Crect x='2' y='2' width='20' height='20' rx='2' fill='%23B88870' opacity='0.07'/%3E%3Crect x='26' y='2' width='20' height='20' rx='2' fill='%23789090' opacity='0.06'/%3E%3Crect x='2' y='26' width='20' height='20' rx='2' fill='%23B8A068' opacity='0.07'/%3E%3Crect x='26' y='26' width='20' height='20' rx='2' fill='%239888A0' opacity='0.06'/%3E%3C/svg%3E\")",
+    background: '#F2EDD7',
+    position: 'relative',
   },
   header: {
     display: 'flex',
@@ -110,7 +159,8 @@ const styles: Record<string, React.CSSProperties> = {
     borderBottom: '1px solid #D4C4A0',
     position: 'sticky',
     top: 0,
-    backgroundColor: '#EDE4CC',
+    background: 'rgba(242, 237, 215, 0.92)',
+    backdropFilter: 'blur(4px)',
     zIndex: 5,
   },
   back: {
@@ -131,6 +181,8 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '1.5rem 1rem',
     maxWidth: 600,
     margin: '0 auto',
+    position: 'relative',
+    zIndex: 1,
   },
   ul: { paddingLeft: '1.2rem', marginTop: '0.4rem' },
 };
