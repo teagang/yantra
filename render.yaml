@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: yantra-server
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build -w packages/shared && npm run build -w packages/server
+    startCommand: node packages/server/dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_ORIGIN
+        sync: false   # set this to your Vercel URL after deploying frontend
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
