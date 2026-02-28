@@ -46,9 +46,8 @@ export default function MenuPage() {
     });
   }
 
-  // Organic decorative squares — clustered behind title and menu, not on a grid
   const deco = [
-    // behind/around title
+    // around title
     { x: '43%', y: '27%', s: 44, c: '#B88870', o: 0.18 },
     { x: '56%', y: '30%', s: 28, c: '#789090', o: 0.13 },
     { x: '37%', y: '36%', s: 36, c: '#9888A0', o: 0.11 },
@@ -56,7 +55,7 @@ export default function MenuPage() {
     { x: '49%', y: '23%', s: 22, c: '#B88870', o: 0.20 },
     { x: '53%', y: '42%', s: 18, c: '#789090', o: 0.08 },
     { x: '40%', y: '22%', s: 30, c: '#B8A068', o: 0.14 },
-    // behind/around menu box
+    // around menu
     { x: '34%', y: '58%', s: 48, c: '#B88870', o: 0.12 },
     { x: '63%', y: '55%', s: 34, c: '#9888A0', o: 0.10 },
     { x: '38%', y: '70%', s: 26, c: '#789090', o: 0.09 },
@@ -64,11 +63,64 @@ export default function MenuPage() {
     { x: '32%', y: '75%', s: 20, c: '#B88870', o: 0.07 },
     { x: '66%', y: '73%', s: 30, c: '#789090', o: 0.07 },
     { x: '50%', y: '80%', s: 24, c: '#9888A0', o: 0.06 },
+    // left edge
+    { x: '8%',  y: '18%', s: 52, c: '#B8A068', o: 0.11 },
+    { x: '5%',  y: '45%', s: 38, c: '#789090', o: 0.09 },
+    { x: '12%', y: '68%', s: 28, c: '#B88870', o: 0.08 },
+    { x: '18%', y: '85%', s: 44, c: '#9888A0', o: 0.07 },
+    { x: '22%', y: '10%', s: 20, c: '#789090', o: 0.10 },
+    { x: '15%', y: '52%', s: 16, c: '#B8A068', o: 0.07 },
+    // right edge
+    { x: '88%', y: '15%', s: 40, c: '#9888A0', o: 0.10 },
+    { x: '92%', y: '42%', s: 30, c: '#B88870', o: 0.09 },
+    { x: '85%', y: '62%', s: 48, c: '#789090', o: 0.08 },
+    { x: '78%', y: '82%', s: 22, c: '#B8A068', o: 0.07 },
+    { x: '72%', y: '10%', s: 34, c: '#B88870', o: 0.10 },
+    { x: '94%', y: '75%', s: 26, c: '#9888A0', o: 0.06 },
+    // top / bottom extras
+    { x: '30%', y: '5%',  s: 32, c: '#B8A068', o: 0.09 },
+    { x: '60%', y: '8%',  s: 20, c: '#789090', o: 0.11 },
+    { x: '45%', y: '92%', s: 36, c: '#B88870', o: 0.06 },
+    { x: '75%', y: '95%', s: 24, c: '#9888A0', o: 0.07 },
   ];
 
   return (
     <div style={styles.screen}>
-      {/* Organic decorative squares */}
+      <style>{`
+        .y-btn {
+          padding: 0.85rem;
+          border-radius: 4px;
+          border: 2px solid #4A6040;
+          background: transparent;
+          color: #3B281B;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          font-family: inherit;
+          width: 100%;
+          transition: background 0.15s, color 0.15s;
+          letter-spacing: 0.02em;
+        }
+        .y-btn:hover { background: #3A4E32; color: #fff; border-color: #3A4E32; }
+        .y-btn-primary { background: rgba(94, 122, 82, 0.32); font-weight: 700; }
+        .y-btn-primary:hover { background: #3A4E32; color: #fff; border-color: #3A4E32; }
+        .y-btn-sm {
+          padding: 0.75rem;
+          border-radius: 4px;
+          border: 2px solid #4A6040;
+          background: transparent;
+          color: #3B281B;
+          font-weight: 600;
+          font-size: 0.9rem;
+          cursor: pointer;
+          font-family: inherit;
+          width: 100%;
+          transition: background 0.15s, color 0.15s;
+        }
+        .y-btn-sm:hover { background: #3A4E32; color: #fff; border-color: #3A4E32; }
+      `}</style>
+
+      {/* Decorative squares */}
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
         {deco.map((d, i) => (
           <div key={i} style={{
@@ -90,10 +142,10 @@ export default function MenuPage() {
 
       {view === 'home' && (
         <div style={styles.menuBox}>
-          <button style={styles.btn} onClick={() => setView('new')}>Start New Game</button>
-          <button style={styles.btn} onClick={() => setView('join')}>Join Game</button>
-          <button style={styles.btnSecondary} onClick={() => navigate('/stats')}>Statistics</button>
-          <button style={styles.btnSecondary} onClick={() => navigate('/rules')}>Rules</button>
+          <button className="y-btn y-btn-primary" onClick={() => setView('new')}>New Game</button>
+          <button className="y-btn" onClick={() => setView('join')}>Join Game</button>
+          <button className="y-btn" onClick={() => navigate('/stats')}>Statistics</button>
+          <button className="y-btn" onClick={() => navigate('/rules')}>Rules</button>
         </div>
       )}
 
@@ -122,8 +174,8 @@ export default function MenuPage() {
             <input type="checkbox" checked={speedPlay} onChange={(e) => setSpeedPlay(e.target.checked)} />
             Speed Play (60s per turn)
           </label>
-          <button style={styles.btn} onClick={handleCreate}>Create Game</button>
-          <button style={styles.btnSecondary} onClick={() => setView('home')}>Back</button>
+          <button className="y-btn y-btn-primary" onClick={handleCreate}>Create Game</button>
+          <button className="y-btn-sm" onClick={() => setView('home')}>Back</button>
         </div>
       )}
 
@@ -144,8 +196,8 @@ export default function MenuPage() {
             onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
             maxLength={6}
           />
-          <button style={styles.btn} onClick={handleJoin}>Join</button>
-          <button style={styles.btnSecondary} onClick={() => setView('home')}>Back</button>
+          <button className="y-btn y-btn-primary" onClick={handleJoin}>Join</button>
+          <button className="y-btn-sm" onClick={() => setView('home')}>Back</button>
         </div>
       )}
     </div>
@@ -175,42 +227,16 @@ const styles: Record<string, React.CSSProperties> = {
   },
   subtitle: { color: '#A89878', letterSpacing: '0.3em', marginBottom: '2rem', zIndex: 1, fontSize: '0.85rem' },
   menuBox: {
-    background: '#D6CEBC',
     borderRadius: 4,
-    padding: '1.5rem',
+    padding: '0.5rem 0',
     display: 'flex',
     flexDirection: 'column',
     gap: '0.75rem',
     width: '100%',
-    maxWidth: 340,
+    maxWidth: 300,
     zIndex: 1,
-    border: '2px solid #A89878',
-    boxShadow: '4px 4px 0px #A89878',
   },
   sectionTitle: { color: '#3B281B', marginBottom: '0.25rem', fontSize: '1rem', fontWeight: 700, fontFamily: "'Pixelify Sans', sans-serif" },
-  btn: {
-    padding: '0.85rem',
-    borderRadius: 4,
-    border: '2px solid #4A6040',
-    background: '#5E7A52',
-    color: '#fff',
-    fontWeight: 700,
-    fontSize: '1rem',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    boxShadow: '2px 2px 0px #4A6040',
-  },
-  btnSecondary: {
-    padding: '0.75rem',
-    borderRadius: 4,
-    border: '2px solid #A89878',
-    background: 'transparent',
-    color: '#7A6A52',
-    fontWeight: 500,
-    fontSize: '0.9rem',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-  },
   input: {
     padding: '0.75rem',
     borderRadius: 4,
@@ -227,7 +253,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '0.6rem',
     borderRadius: 4,
     border: '2px solid #A89878',
-    background: '#EDE4CC',
+    background: 'transparent',
     color: '#7A6A52',
     cursor: 'pointer',
     fontFamily: 'inherit',
