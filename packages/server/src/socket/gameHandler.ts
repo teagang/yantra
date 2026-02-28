@@ -4,7 +4,7 @@ import { applyMove, computeRatingChanges } from '../engine/gameStateMachine.js';
 import { validateMove } from '../engine/moveValidator.js';
 import { calculateScore } from '../engine/scorer.js';
 import { updateGame, upsertGamePlayers, recordMove, applyRatingChanges } from '../db/queries.js';
-import { activeGames, stripPrivate } from './lobbyHandler.js';
+import { activeGames, stripPrivate, joinCodeIndex } from './lobbyHandler.js';
 
 export function registerGameHandlers(io: Server, socket: Socket): void {
   // ── Submit move ──────────────────────────────────────────────────────────
@@ -12,6 +12,13 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
     const entry = activeGames.get(payload.gameId);
     if (!entry) {
       socket.emit('game:invalidMove', { reason: 'Game not found.' });
+      return;
+    }
+
+    // Verify the socket belongs to the claimed player
+    const registeredSocket = entry.playerSockets.get(payload.playerId);
+    if (registeredSocket !== socket.id) {
+      socket.emit('game:invalidMove', { reason: 'Not authorized for this player.' });
       return;
     }
 
@@ -89,6 +96,8 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
         ratingChanges,
       });
 
+      // Clean up join code index
+      joinCodeIndex.delete(entry.state.joinCode);
       activeGames.delete(payload.gameId);
     }
   });

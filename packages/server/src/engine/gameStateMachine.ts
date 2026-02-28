@@ -210,12 +210,6 @@ function applySwapMove(
   state.consecutiveSkips = 0; // swap is an active move — reset the pass counter
   state.currentTurnIndex = nextTurnIndex(state);
 
-  const allSkipped =
-    state.consecutiveSkips >= state.players.length * 2;
-  if (allSkipped) {
-    state = finaliseGame(state, null);
-  }
-
   return { success: true, updatedState: state, scoreGained: 0 };
 }
 
@@ -245,9 +239,20 @@ function applyResign(
   player: GamePlayer,
   _playerIdx: number
 ): MoveResult {
-  // Resigning player is eliminated; if only one remains, they win
-  player.score = -9999; // effectively removes them
-  state = finaliseGame(state, null);
+  // Resigning player loses their hand value as penalty
+  player.score -= handValue(player.hand);
+
+  // Determine winner: among non-resigning players, highest score wins
+  state.status = 'finished';
+  const others = state.players.filter((p) => p.playerId !== player.playerId);
+  if (others.length === 1) {
+    state.winnerId = others[0].playerId;
+  } else {
+    const best = others.reduce((a, b) => (b.score > a.score ? b : a));
+    const tied = others.filter((p) => p.score === best.score);
+    state.winnerId = tied.length === 1 ? best.playerId : null;
+  }
+
   return { success: true, updatedState: state, scoreGained: 0 };
 }
 

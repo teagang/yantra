@@ -3,7 +3,9 @@ dist/
 .env
 .env.local
 *.log
+*.tsbuildinfo
 .DS_Store
 aesthetics/
 Scan*.jpeg
 *.pdf
+.vercel

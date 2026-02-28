@@ -43,6 +43,22 @@ export function validateMove(
     }
   }
 
+  // 1b. Validate blank tile assignments
+  for (const p of placements) {
+    if (p.tile.isBlank) {
+      if (p.tile.assignedValue == null || p.tile.assignedValue < 1 || p.tile.assignedValue > 7) {
+        return { valid: false, reason: 'Blank tile must be assigned a value between 1 and 7.' };
+      }
+      if (!p.tile.assignedColour) {
+        return { valid: false, reason: 'Blank tile must be assigned a colour.' };
+      }
+      const validColours = ['red', 'blue', 'yellow', 'purple'];
+      if (!validColours.includes(p.tile.assignedColour)) {
+        return { valid: false, reason: 'Blank tile has an invalid assigned colour.' };
+      }
+    }
+  }
+
   // 2. All squares must be empty
   for (const p of placements) {
     const sq = board[squareKey(p.row, p.col)];
@@ -131,9 +147,11 @@ function buildMainSequence(
   horizontal: boolean
 ): TilePlacement[] | null {
   if (placements.length === 1) {
-    // Single-tile play; no gap check needed
+    // Single-tile play; extend outward to include adjacent existing tiles
     const p = placements[0];
-    return [p];
+    const row = horizontal ? p.row : p.col;
+    const pos = horizontal ? p.col : p.row;
+    return extendSequence([p], board, horizontal, row, pos, pos);
   }
 
   const fixed = horizontal ? placements[0].row : placements[0].col;

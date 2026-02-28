@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore.js';
-import { getSocket, useSocket } from '../hooks/useSocket.js';
+import { useSocket } from '../hooks/useSocket.js';
 import type { GameMode } from '@yantra/shared';
 
 const COLOURS = { red: '#B55B4A', blue: '#4D7A8E', yellow: '#C8A840', purple: '#7A6A96' };
@@ -16,8 +16,26 @@ export default function MenuPage() {
   const [view, setView] = useState<'home' | 'new' | 'join'>('home');
   const socket = useSocket();
 
+  const [error, setError] = useState('');
+  const storeGameId = useGameStore((s) => s.gameId);
+
+  // Navigate to lobby once the global handler sets gameId in the store
+  useEffect(() => {
+    if (storeGameId) navigate('/lobby');
+  }, [storeGameId, navigate]);
+
+  // Listen for errors (join failures etc.)
+  useEffect(() => {
+    function onError(data: { message: string }) {
+      setError(data.message);
+    }
+    socket.on('error', onError);
+    return () => { socket.off('error', onError); };
+  }, [socket]);
+
   function handleCreate() {
     if (!name.trim()) return;
+    setError('');
     setIdentity(name.trim(), '');
     socket.emit('create:game', {
       username: name.trim(),
@@ -26,24 +44,13 @@ export default function MenuPage() {
       speedPlaySeconds: 60,
       maxPlayers: 4,
     });
-    socket.once('game:created', (data: { gameId: string; joinCode: string; playerId: string }) => {
-      setIdentity(name.trim(), data.playerId);
-      setLobby(data.gameId, data.joinCode);
-      navigate('/lobby');
-    });
   }
 
   function handleJoin() {
     if (!name.trim() || !joinCode.trim()) return;
+    setError('');
     setIdentity(name.trim(), '');
     socket.emit('join:game', { username: name.trim(), joinCode: joinCode.trim().toUpperCase() });
-    socket.once('game:joined', (data: { gameId: string; playerId: string }) => {
-      setIdentity(name.trim(), data.playerId);
-      navigate('/lobby');
-    });
-    socket.once('error', (data: { message: string }) => {
-      alert(data.message);
-    });
   }
 
   const deco = [
@@ -197,6 +204,7 @@ export default function MenuPage() {
             maxLength={6}
           />
           <button className="y-btn y-btn-primary" onClick={handleJoin}>Join</button>
+          {error && <p style={{ color: '#B55B4A', fontSize: '0.85rem', textAlign: 'center' }}>{error}</p>}
           <button className="y-btn-sm" onClick={() => setView('home')}>Back</button>
         </div>
       )}

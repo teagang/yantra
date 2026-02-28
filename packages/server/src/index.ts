@@ -5,7 +5,7 @@ import cors from 'cors';
 import { playersRouter } from './routes/players.js';
 import { gamesRouter } from './routes/games.js';
 import { leaderboardRouter } from './routes/leaderboard.js';
-import { registerLobbyHandlers, pendingLobbies, activeGames } from './socket/lobbyHandler.js';
+import { registerLobbyHandlers, pendingLobbies, activeGames, joinCodeIndex } from './socket/lobbyHandler.js';
 import { registerGameHandlers } from './socket/gameHandler.js';
 
 const PORT = parseInt(process.env['PORT'] ?? '3001', 10);
@@ -52,6 +52,45 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log(`Socket disconnected: ${socket.id}`);
+
+    // Clean up pending lobbies — remove player from any lobby they were in
+    for (const [gameId, lobby] of pendingLobbies) {
+      let removedPlayer: string | null = null;
+      for (const [playerId, sid] of lobby.socketIds) {
+        if (sid === socket.id) {
+          removedPlayer = playerId;
+          lobby.socketIds.delete(playerId);
+          break;
+        }
+      }
+      if (removedPlayer) {
+        lobby.players = lobby.players.filter((p) => p.playerId !== removedPlayer);
+        if (lobby.players.length === 0) {
+          // Empty lobby — clean up entirely
+          pendingLobbies.delete(gameId);
+          joinCodeIndex.delete(lobby.joinCode);
+          activeGames.delete(gameId);
+        } else {
+          // Notify remaining players
+          io.to(gameId).emit('lobby:playerJoined', {
+            players: lobby.players.map((p) => ({
+              username: p.username,
+              seatIndex: lobby.players.indexOf(p),
+            })),
+          });
+        }
+      }
+    }
+
+    // Update active games — remove disconnected socket mapping
+    for (const [_gameId, entry] of activeGames) {
+      for (const [playerId, sid] of entry.playerSockets) {
+        if (sid === socket.id) {
+          entry.playerSockets.delete(playerId);
+          break;
+        }
+      }
+    }
   });
 });
 

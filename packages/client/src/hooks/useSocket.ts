@@ -34,9 +34,9 @@ export function useSocketEvents() {
       useGameStore.getState().setLobbyPlayers([{ username, seatIndex: 0 }]);
     }
 
-    function onJoined(data: { gameId: string; playerId: string; players: { username: string; seatIndex: number }[] }) {
+    function onJoined(data: { gameId: string; joinCode: string; playerId: string; players: { username: string; seatIndex: number }[] }) {
       useGameStore.getState().setIdentity(useGameStore.getState().username, data.playerId);
-      useGameStore.getState().setLobby(data.gameId, useGameStore.getState().joinCode);
+      useGameStore.getState().setLobby(data.gameId, data.joinCode);
       useGameStore.getState().setLobbyPlayers(data.players);
     }
 

@@ -99,6 +99,7 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
 
       socket.emit('game:joined', {
         gameId,
+        joinCode: lobby.joinCode,
         playerId: player.id,
         players: lobby.players.map((p) => ({ username: p.username, seatIndex: lobby.players.indexOf(p) })),
       });

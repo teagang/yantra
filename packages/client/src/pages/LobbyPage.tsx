@@ -2,21 +2,17 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore.js';
 import { useSocket } from '../hooks/useSocket.js';
-import { getSocket } from '../hooks/useSocket.js';
 
 export default function LobbyPage() {
   const navigate = useNavigate();
   const { gameId, joinCode, lobbyPlayers, username, playerId } = useGameStore();
+  const gameState = useGameStore((s) => s.gameState);
   const socket = useSocket();
 
+  // Navigate to game when the global handler sets gameState (game:started)
   useEffect(() => {
-    // Navigate when game starts
-    const handleStarted = () => {
-      navigate(`/game/${gameId}`);
-    };
-    socket.on('game:started', handleStarted);
-    return () => { socket.off('game:started', handleStarted); };
-  }, [gameId, navigate, socket]);
+    if (gameState && gameId) navigate(`/game/${gameId}`);
+  }, [gameState, gameId, navigate]);
 
   function handleStart() {
     socket.emit('start:game', { gameId });
