@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useGameStore } from '../store/gameStore.js';
+import type { GameState, Tile, RatingChange } from '@yantra/shared';
 
 const SERVER_URL = import.meta.env['VITE_SERVER_URL'] ?? 'http://localhost:3001';
 
@@ -45,16 +46,16 @@ export function useSocketEvents() {
 
     // ── Game ──────────────────────────────────────────────────────────────────
 
-    function onStarted(data: { state: Parameters<ReturnType<typeof useGameStore>['setGameState']>[0]; yourHand: Parameters<ReturnType<typeof useGameStore>['setHand']>[0] }) {
+    function onStarted(data: { state: Omit<GameState, 'tilePool'> & { tilesRemaining: number }; yourHand: Tile[] }) {
       useGameStore.getState().setGameState(data.state);
       useGameStore.getState().setHand(data.yourHand, (data.state as any)?.tilesRemaining ?? 0);
     }
 
-    function onStateUpdate(data: { state: Parameters<ReturnType<typeof useGameStore>['setGameState']>[0] }) {
+    function onStateUpdate(data: { state: Omit<GameState, 'tilePool'> & { tilesRemaining: number } }) {
       useGameStore.getState().setGameState(data.state);
     }
 
-    function onHandUpdate(data: { hand: Parameters<ReturnType<typeof useGameStore>['setHand']>[0]; tilesRemaining: number }) {
+    function onHandUpdate(data: { hand: Tile[]; tilesRemaining: number }) {
       useGameStore.getState().setHand(data.hand, data.tilesRemaining);
       useGameStore.getState().clearPendingPlacements();
     }
@@ -70,7 +71,7 @@ export function useSocketEvents() {
     function onFinished(data: {
       finalScores: { playerId: string; username: string; score: number }[];
       winnerId: string | null;
-      ratingChanges: Parameters<ReturnType<typeof useGameStore>['setGameFinished']>[1];
+      ratingChanges: RatingChange[];
     }) {
       const { playerId, setGameFinished, setPopup } = useGameStore.getState();
       setGameFinished(data.finalScores, data.ratingChanges);
