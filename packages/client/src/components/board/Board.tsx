@@ -57,7 +57,7 @@ export function Board({ board, squareSize = 34, selectedTile, onTileSelected }: 
         display: 'grid',
         gridTemplateColumns: `repeat(${GRID}, ${squareSize}px)`,
         gap: 1,
-        background: '#D4CCBA',
+        background: '#EAE4D6',
         padding: 0,
         borderRadius: 0,
         overflow: 'auto',

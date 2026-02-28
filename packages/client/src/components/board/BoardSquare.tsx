@@ -2,7 +2,7 @@ import type { BoardSquare as BoardSquareType, Tile } from '@yantra/shared';
 import { PlacedTile } from './PlacedTile.js';
 
 const SQUARE_COLOURS: Record<string, string> = {
-  normal: '#EAE4D6',
+  normal: '#D4CCBA',
   star: '#E8C46A66',
   'double-tile': '#6A8D5C55',
   'triple-tile': '#4D6A4288',

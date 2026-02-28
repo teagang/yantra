@@ -39,8 +39,7 @@ export function TileRack({ hand, onTileSelected, selectedTile }: Props) {
               }
             }}
             onDragStart={(e) => {
-              e.dataTransfer.effectAllowed = 'move';
-              onDragStart(tile);
+              onDragStart(tile, e);
             }}
             onDragEnd={onDragEnd}
           />

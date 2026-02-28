@@ -26,6 +26,23 @@ export default function LobbyPage() {
 
   return (
     <div style={styles.screen}>
+      {/* Decorative squares (same as landing page) */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+        {deco.map((d, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            left: d.x,
+            top: d.y,
+            width: d.s,
+            height: d.s,
+            background: d.c,
+            opacity: d.o,
+            borderRadius: 4,
+            transform: 'translate(-50%, -50%)',
+          }} />
+        ))}
+      </div>
+
       <h1 style={styles.title}>Waiting Room</h1>
 
       <div style={styles.codeBox}>
@@ -60,6 +77,44 @@ export default function LobbyPage() {
   );
 }
 
+const deco = [
+  // around title
+  { x: '43%', y: '27%', s: 44, c: '#B88870', o: 0.18 },
+  { x: '56%', y: '30%', s: 28, c: '#789090', o: 0.13 },
+  { x: '37%', y: '36%', s: 36, c: '#9888A0', o: 0.11 },
+  { x: '61%', y: '33%', s: 52, c: '#B8A068', o: 0.09 },
+  { x: '49%', y: '23%', s: 22, c: '#B88870', o: 0.20 },
+  { x: '53%', y: '42%', s: 18, c: '#789090', o: 0.08 },
+  { x: '40%', y: '22%', s: 30, c: '#B8A068', o: 0.14 },
+  // around menu
+  { x: '34%', y: '58%', s: 48, c: '#B88870', o: 0.12 },
+  { x: '63%', y: '55%', s: 34, c: '#9888A0', o: 0.10 },
+  { x: '38%', y: '70%', s: 26, c: '#789090', o: 0.09 },
+  { x: '59%', y: '68%', s: 42, c: '#B8A068', o: 0.08 },
+  { x: '32%', y: '75%', s: 20, c: '#B88870', o: 0.07 },
+  { x: '66%', y: '73%', s: 30, c: '#789090', o: 0.07 },
+  { x: '50%', y: '80%', s: 24, c: '#9888A0', o: 0.06 },
+  // left edge
+  { x: '8%',  y: '18%', s: 52, c: '#B8A068', o: 0.11 },
+  { x: '5%',  y: '45%', s: 38, c: '#789090', o: 0.09 },
+  { x: '12%', y: '68%', s: 28, c: '#B88870', o: 0.08 },
+  { x: '18%', y: '85%', s: 44, c: '#9888A0', o: 0.07 },
+  { x: '22%', y: '10%', s: 20, c: '#789090', o: 0.10 },
+  { x: '15%', y: '52%', s: 16, c: '#B8A068', o: 0.07 },
+  // right edge
+  { x: '88%', y: '15%', s: 40, c: '#9888A0', o: 0.10 },
+  { x: '92%', y: '42%', s: 30, c: '#B88870', o: 0.09 },
+  { x: '85%', y: '62%', s: 48, c: '#789090', o: 0.08 },
+  { x: '78%', y: '82%', s: 22, c: '#B8A068', o: 0.07 },
+  { x: '72%', y: '10%', s: 34, c: '#B88870', o: 0.10 },
+  { x: '94%', y: '75%', s: 26, c: '#9888A0', o: 0.06 },
+  // top / bottom extras
+  { x: '30%', y: '5%',  s: 32, c: '#B8A068', o: 0.09 },
+  { x: '60%', y: '8%',  s: 20, c: '#789090', o: 0.11 },
+  { x: '45%', y: '92%', s: 36, c: '#B88870', o: 0.06 },
+  { x: '75%', y: '95%', s: 24, c: '#9888A0', o: 0.07 },
+];
+
 const styles: Record<string, React.CSSProperties> = {
   screen: {
     height: '100%',
@@ -68,10 +123,11 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     padding: '2rem 1rem',
     gap: '1.5rem',
-    backgroundColor: '#F2EDD7',
-    backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Crect x='2' y='2' width='20' height='20' rx='2' fill='%23B88870' opacity='0.07'/%3E%3Crect x='26' y='2' width='20' height='20' rx='2' fill='%23789090' opacity='0.06'/%3E%3Crect x='2' y='26' width='20' height='20' rx='2' fill='%23B8A068' opacity='0.07'/%3E%3Crect x='26' y='26' width='20' height='20' rx='2' fill='%239888A0' opacity='0.06'/%3E%3C/svg%3E\")",
+    background: '#F2EDD7',
+    position: 'relative',
+    overflow: 'hidden',
   },
-  title: { color: '#3B281B', fontSize: '1.5rem', fontWeight: 700, fontFamily: "'Pixelify Sans', sans-serif" },
+  title: { color: '#3B281B', fontSize: '1.5rem', fontWeight: 700, fontFamily: "'Pixelify Sans', sans-serif", zIndex: 1 },
   codeBox: {
     background: '#EDE4CC',
     borderRadius: 4,
@@ -79,6 +135,7 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'center',
     border: '2px solid #C8B896',
     boxShadow: '3px 3px 0px #C8B896',
+    zIndex: 1,
   },
   codeLabel: { color: '#7A6A52', fontSize: '0.8rem', marginBottom: '0.25rem' },
   code: { fontSize: '2.5rem', fontWeight: 300, letterSpacing: '0.3em', color: '#3B281B', fontFamily: "'DM Sans', system-ui, sans-serif" },
@@ -89,6 +146,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 4,
     padding: '1rem',
     border: '2px solid #C8B896',
+    zIndex: 1,
   },
   listLabel: { color: '#7A6A52', fontSize: '0.85rem', marginBottom: '0.75rem' },
   playerRow: {
@@ -121,6 +179,7 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     fontFamily: 'inherit',
     boxShadow: '3px 3px 0px #4A6040',
+    zIndex: 1,
   },
   backBtn: {
     background: 'transparent',
@@ -130,5 +189,6 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 4,
     cursor: 'pointer',
     fontFamily: 'inherit',
+    zIndex: 1,
   },
 };
