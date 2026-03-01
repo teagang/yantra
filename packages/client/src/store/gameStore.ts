@@ -88,11 +88,31 @@ interface GameStore {
 
 // ── Initial values ────────────────────────────────────────────────────────────
 
+// Persist critical fields to sessionStorage so refresh can reconnect
+const SESSION_KEY = 'yantra_session';
+
+function saveSession(fields: { username: string; playerId: string; gameId: string; joinCode: string }) {
+  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(fields)); } catch {}
+}
+
+function loadSession(): { username: string; playerId: string; gameId: string; joinCode: string } | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+export function clearSession() {
+  try { sessionStorage.removeItem(SESSION_KEY); } catch {}
+}
+
+const saved = loadSession();
+
 const initial = {
-  username: '',
-  playerId: '',
-  gameId: '',
-  joinCode: '',
+  username: saved?.username ?? '',
+  playerId: saved?.playerId ?? '',
+  gameId: saved?.gameId ?? '',
+  joinCode: saved?.joinCode ?? '',
   lobbyPlayers: [] as { username: string; seatIndex: number }[],
   gameState: null,
   hand: [] as Tile[],
@@ -114,8 +134,16 @@ const initial = {
 export const useGameStore = create<GameStore>((set, get) => ({
   ...initial,
 
-  setIdentity: (username, playerId) => set({ username, playerId }),
-  setLobby: (gameId, joinCode) => set({ gameId, joinCode }),
+  setIdentity: (username, playerId) => {
+    set({ username, playerId });
+    const s = get();
+    saveSession({ username, playerId, gameId: s.gameId, joinCode: s.joinCode });
+  },
+  setLobby: (gameId, joinCode) => {
+    set({ gameId, joinCode });
+    const s = get();
+    saveSession({ username: s.username, playerId: s.playerId, gameId, joinCode });
+  },
   setLobbyPlayers: (players) => set({ lobbyPlayers: players }),
 
   setGameState: (gameState) => set({ gameState }),
@@ -149,5 +177,5 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setGameFinished: (finalScores, ratingChanges) =>
     set({ finalScores, ratingChanges }),
 
-  reset: () => set({ ...initial }),
+  reset: () => { clearSession(); set({ ...initial, username: '', playerId: '', gameId: '', joinCode: '' }); },
 }));
