@@ -286,11 +286,16 @@ function isValidSequence(placements: TilePlacement[]): SeqValidation {
   const allValues = placements.map((p) => effectiveValue(p));
   const allColours = numbered.map((p) => p.tile.colour as TileColour);
 
-  // ── Case (b): all same number ──────────────────────────────────────────────
-  if (eights.length === 0 && blanks.length === 0) {
+  // ── Case (b): all same number (works with blanks too) ──────────────────────
+  {
     const v0 = allValues[0];
-    if (allValues.every((v) => v === v0)) {
-      if (new Set(allColours).size !== allColours.length) {
+    if (eights.length === 0 && allValues.every((v) => v === v0)) {
+      // All tiles share the same effective value — validate as same-number sequence
+      // Collect all colours including assigned colours from blanks
+      const seqColours = placements
+        .filter((p) => !p.tile.isEight)
+        .map((p) => p.tile.isBlank ? p.tile.assignedColour as TileColour : p.tile.colour as TileColour);
+      if (new Set(seqColours).size !== seqColours.length) {
         return { valid: false, reason: 'Duplicate colours in a same-number sequence.' };
       }
       return { valid: true };
@@ -304,12 +309,17 @@ function isValidSequence(placements: TilePlacement[]): SeqValidation {
     .filter((p) => !p.tile.isBlank)
     .map((p) => p.tile.colour as TileColour);
 
-  // All same colour (ignoring blanks which are colourless)
-  if (nonEightColours.length > 0 && !nonEightColours.every((c) => c === nonEightColours[0])) {
+  // Collect all colours for non-eight tiles (including blank assigned colours)
+  const allNonEightColours = nonEight.map((p) =>
+    p.tile.isBlank ? p.tile.assignedColour as TileColour : p.tile.colour as TileColour
+  );
+
+  // All same colour?
+  if (allNonEightColours.length > 0 && !allNonEightColours.every((c) => c === allNonEightColours[0])) {
     // Mixed colour: only valid as same-number sequence
     const v0 = nonEightValues[0];
     if (nonEightValues.every((v) => v === v0)) {
-      if (new Set(nonEightColours).size !== nonEightColours.length) {
+      if (new Set(allNonEightColours).size !== allNonEightColours.length) {
         return { valid: false, reason: 'Duplicate colours in a same-number sequence.' };
       }
       return { valid: true };
