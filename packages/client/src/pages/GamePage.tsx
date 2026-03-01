@@ -18,10 +18,19 @@ const MOBILE_BREAKPOINT = 768;
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < MOBILE_BREAKPOINT);
+  const [, setTick] = useState(0);
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    const onResize = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+      setTick((t) => t + 1); // force re-render for squareSize recalc
+    };
     window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    // Also listen to visualViewport resize (mobile browser chrome changes)
+    window.visualViewport?.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.visualViewport?.removeEventListener('resize', onResize);
+    };
   }, []);
   return isMobile;
 }
@@ -50,16 +59,18 @@ export default function GamePage() {
   const isMyTurn = currentPlayer?.playerId === playerId;
 
   // Board sizing — on mobile, cap so bottom bar stays visible
+  // Use visualViewport height when available (accounts for browser chrome + nav bar)
+  const safeHeight = window.visualViewport?.height ?? window.innerHeight;
   const squareSize = isMobile
     ? (() => {
         const topBarH = 42;     // top bar
-        const scoresH = 44;     // scores row
-        const bottomBarH = 120; // rack + action buttons
-        const padding = 16;
-        const availH = window.innerHeight - topBarH - scoresH - bottomBarH - padding;
-        const fromWidth = Math.floor((window.innerWidth - 16) / 15);
+        const scoresH = 40;     // scores row
+        const bottomBarH = 100; // rack + action buttons
+        const padding = 8;
+        const availH = safeHeight - topBarH - scoresH - bottomBarH - padding;
+        const fromWidth = Math.floor((window.innerWidth - 8) / 15);
         const fromHeight = Math.floor(availH / 15);
-        return Math.max(16, Math.min(fromWidth, fromHeight));
+        return Math.max(14, Math.min(fromWidth, fromHeight));
       })()
     : (() => {
         const BOARD_V_PAD = 32;
@@ -467,7 +478,7 @@ const mobileStyles: Record<string, React.CSSProperties> = {
   screen: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100vh',
+    height: '100dvh',
     width: '100vw',
     overflow: 'hidden',
     background: '#EAE4D6',
@@ -520,8 +531,8 @@ const mobileStyles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'auto',
-    padding: '0.25rem',
+    overflow: 'hidden',
+    minHeight: 0,
   },
   bottomBar: {
     flexShrink: 0,
