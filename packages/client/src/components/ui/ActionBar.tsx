@@ -30,17 +30,20 @@ export function ActionBar() {
 
   return (
     <div style={styles.bar}>
+      {/* Score preview / error above buttons */}
+      {pendingPlacements.length > 0 && (
+        <div style={styles.preview}>
+          {previewValid ? (
+            <span style={styles.previewScore}>+{previewScore?.finalScore ?? '…'} pts</span>
+          ) : (
+            <span style={styles.previewInvalid}>{previewReason || 'Invalid'}</span>
+          )}
+        </div>
+      )}
+
       <div style={styles.btnRow}>
         {pendingPlacements.length > 0 ? (
           <>
-            {/* Score preview inline */}
-            <div style={styles.preview}>
-              {previewValid ? (
-                <span style={styles.previewScore}>+{previewScore?.finalScore ?? '…'}</span>
-              ) : (
-                <span style={styles.previewInvalid}>{previewReason || 'Invalid'}</span>
-              )}
-            </div>
             <button
               style={{ ...styles.btn, flex: 1, background: previewValid ? '#5E7A52' : '#C8B896', color: previewValid ? '#fff' : '#A89878', border: previewValid ? '2px solid #4A6040' : '2px solid #A89878', boxShadow: previewValid ? '2px 2px 0px #4A6040' : 'none' }}
               onClick={submitMove}
@@ -79,12 +82,10 @@ const styles: Record<string, React.CSSProperties> = {
   },
   hint: { color: '#A89878', fontSize: '0.75rem', margin: 0 },
   preview: {
-    display: 'flex',
-    alignItems: 'center',
-    flexShrink: 0,
+    overflow: 'hidden',
   },
   previewScore: { color: '#5E7A52', fontWeight: 700, fontSize: '0.85rem' },
-  previewInvalid: { color: '#A75B47', fontSize: '0.7rem', lineHeight: 1.2, maxWidth: 80 },
+  previewInvalid: { color: '#A75B47', fontSize: '0.75rem', lineHeight: 1.2 },
   btnRow: { display: 'flex', flexDirection: 'row', gap: 6, alignItems: 'center' },
   btn: {
     padding: '0.45rem 0.5rem',
