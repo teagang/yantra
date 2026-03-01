@@ -53,8 +53,8 @@ const styles: Record<string, React.CSSProperties> = {
   rack: {
     display: 'flex',
     flexDirection: 'row',
-    gap: 8,
-    padding: '0.75rem 1rem',
+    gap: 6,
+    padding: '0.4rem 0.5rem',
     alignItems: 'center',
     justifyContent: 'center',
     flexWrap: 'wrap',

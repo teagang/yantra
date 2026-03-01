@@ -49,9 +49,18 @@ export default function GamePage() {
   const currentPlayer = gameState.players[gameState.currentTurnIndex] as GamePlayer & { playerId: string };
   const isMyTurn = currentPlayer?.playerId === playerId;
 
-  // Board sizing
+  // Board sizing — on mobile, cap so bottom bar stays visible
   const squareSize = isMobile
-    ? Math.max(18, Math.floor((window.innerWidth - 16) / 15))
+    ? (() => {
+        const topBarH = 42;     // top bar
+        const scoresH = 44;     // scores row
+        const bottomBarH = 120; // rack + action buttons
+        const padding = 16;
+        const availH = window.innerHeight - topBarH - scoresH - bottomBarH - padding;
+        const fromWidth = Math.floor((window.innerWidth - 16) / 15);
+        const fromHeight = Math.floor(availH / 15);
+        return Math.max(16, Math.min(fromWidth, fromHeight));
+      })()
     : (() => {
         const BOARD_V_PAD = 32;
         const centerW = window.innerWidth - SIDEBAR_W * 2;
@@ -517,7 +526,7 @@ const mobileStyles: Record<string, React.CSSProperties> = {
   bottomBar: {
     flexShrink: 0,
     borderTop: '1px solid #D4C4A0',
-    padding: '0.5rem',
+    padding: '0.35rem 0.5rem',
     background: '#EAE4D6',
   },
 };
