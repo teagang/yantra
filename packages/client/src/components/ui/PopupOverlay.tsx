@@ -1,26 +1,36 @@
+import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../store/gameStore.js';
 
 export function PopupOverlay() {
   const { popup, dismissPopup } = useGameStore();
+  const navigate = useNavigate();
   if (!popup.type) return null;
 
   const config = {
-    win: { title: 'You Won!', bg: '#5E7A52', emoji: '🏆' },
-    loss: { title: 'You Lost', bg: '#A75B47', emoji: '😔' },
-    draw: { title: 'Draw!', bg: '#4D7A8E', emoji: '🤝' },
-    invalid: { title: 'Invalid Move', bg: '#A75B47', emoji: '⚠️' },
-    'speed-bonus': { title: `+${popup.bonusPoints} Speed Bonus!`, bg: '#C8A840', emoji: '⚡' },
+    win: { title: 'You Won!', bg: '#5E7A52' },
+    loss: { title: 'You Lost', bg: '#A75B47' },
+    draw: { title: 'Draw!', bg: '#4D7A8E' },
+    invalid: { title: 'Invalid Move', bg: '#A75B47' },
+    'speed-bonus': { title: `+${popup.bonusPoints} Speed Bonus!`, bg: '#C8A840' },
   }[popup.type];
 
   if (!config) return null;
 
+  const isGameOver = popup.type === 'win' || popup.type === 'loss' || popup.type === 'draw';
+
+  const handleDismiss = () => {
+    dismissPopup();
+    if (isGameOver) {
+      navigate('/');
+    }
+  };
+
   return (
-    <div style={styles.overlay} onClick={dismissPopup}>
+    <div style={styles.overlay} onClick={handleDismiss}>
       <div
         style={{ ...styles.card, borderColor: config.bg }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={styles.emoji}>{config.emoji}</div>
         <h2 style={{ ...styles.title, color: config.bg }}>{config.title}</h2>
 
         {popup.newRating !== undefined && (
@@ -31,8 +41,8 @@ export function PopupOverlay() {
           <p style={styles.reason}>{popup.reason}</p>
         )}
 
-        <button style={{ ...styles.btn, background: config.bg }} onClick={dismissPopup}>
-          {popup.type === 'invalid' ? 'OK' : 'Continue'}
+        <button style={{ ...styles.btn, background: config.bg }} onClick={handleDismiss}>
+          {isGameOver ? 'Back to Home' : 'OK'}
         </button>
       </div>
     </div>
@@ -62,7 +72,6 @@ const styles: Record<string, React.CSSProperties> = {
     width: '90%',
     boxShadow: '4px 4px 0px #A89878',
   },
-  emoji: { fontSize: '3rem' },
   title: { fontWeight: 700, fontSize: '1.5rem' },
   rating: { color: '#7A6A52', fontSize: '0.9rem' },
   reason: { color: '#A89878', fontSize: '0.85rem', textAlign: 'center' },

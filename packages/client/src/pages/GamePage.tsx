@@ -174,8 +174,8 @@ function DesktopLayout({ gameState, currentPlayer, isMyTurn, squareSize, selecte
               </div>
             )}
             <button style={styles.dropItem} onClick={() => { navigate('/rules'); setShowMenu(false); }}>Rules</button>
-            <button style={styles.dropItem} onClick={() => { if (confirm('Resign?')) { resign(); setShowMenu(false); } }}>Resign</button>
-            <button style={styles.dropItem} onClick={() => { navigate('/'); setShowMenu(false); }}>Exit</button>
+            <button style={styles.dropItem} onClick={() => { if (confirm('Resign this game?')) { resign(); setShowMenu(false); navigate('/'); } }}>Resign</button>
+            <button style={styles.dropItem} onClick={() => { if (confirm('Leave this game?')) { navigate('/'); setShowMenu(false); } }}>Exit</button>
           </div>
         )}
 
@@ -258,8 +258,8 @@ function MobileLayout({ gameState, currentPlayer, isMyTurn, squareSize, selected
             </div>
           )}
           <button style={styles.dropItem} onClick={() => { navigate('/rules'); setShowMenu(false); }}>Rules</button>
-          <button style={styles.dropItem} onClick={() => { if (confirm('Resign?')) { resign(); setShowMenu(false); } }}>Resign</button>
-          <button style={styles.dropItem} onClick={() => { navigate('/'); setShowMenu(false); }}>Exit</button>
+          <button style={styles.dropItem} onClick={() => { if (confirm('Resign this game?')) { resign(); setShowMenu(false); navigate('/'); } }}>Resign</button>
+          <button style={styles.dropItem} onClick={() => { if (confirm('Leave this game?')) { navigate('/'); setShowMenu(false); } }}>Exit</button>
         </div>
       )}
 
