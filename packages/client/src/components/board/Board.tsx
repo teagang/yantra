@@ -11,11 +11,12 @@ interface Props {
   squareSize?: number;
   selectedTile?: Tile | null; // tile selected from rack (tap-to-place)
   onTileSelected?: () => void;
+  onBlankTileDrop?: (tile: Tile, row: number, col: number) => void;
 }
 
 const GRID = 15;
 
-export function Board({ board, squareSize = 34, selectedTile, onTileSelected }: Props) {
+export function Board({ board, squareSize = 34, selectedTile, onTileSelected, onBlankTileDrop }: Props) {
   const { pendingPlacements } = useGameStore();
   const { placeTile, recallTile, isMyTurn } = useGame();
   const myTurn = isMyTurn();
@@ -33,9 +34,13 @@ export function Board({ board, squareSize = 34, selectedTile, onTileSelected }: 
       if (!myTurn) return;
       const k = `${row},${col}`;
       if (board[k]?.placedTile || pendingMap.has(k)) return;
+      if (tile.isBlank && onBlankTileDrop) {
+        onBlankTileDrop(tile, row, col);
+        return;
+      }
       placeTile(tile, row, col);
     },
-    [board, pendingMap, placeTile, myTurn]
+    [board, pendingMap, placeTile, myTurn, onBlankTileDrop]
   );
 
   const { onDragOver, onDropSquare } = useDragDrop(handleDrop);
@@ -45,10 +50,15 @@ export function Board({ board, squareSize = 34, selectedTile, onTileSelected }: 
       if (!myTurn || !selectedTile) return;
       const k = `${row},${col}`;
       if (board[k]?.placedTile || pendingMap.has(k)) return;
+      if (selectedTile.isBlank && onBlankTileDrop) {
+        onBlankTileDrop(selectedTile, row, col);
+        onTileSelected?.();
+        return;
+      }
       placeTile(selectedTile, row, col);
       onTileSelected?.();
     },
-    [board, pendingMap, placeTile, selectedTile, myTurn, onTileSelected]
+    [board, pendingMap, placeTile, selectedTile, myTurn, onTileSelected, onBlankTileDrop]
   );
 
   return (

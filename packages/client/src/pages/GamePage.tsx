@@ -10,8 +10,9 @@ import { ActionBar } from '../components/ui/ActionBar.js';
 import { PopupOverlay } from '../components/ui/PopupOverlay.js';
 import { SpeedPlayTimer } from '../components/ui/SpeedPlayTimer.js';
 import { PixelPlant, PixelCoffee } from '../components/ui/Decorations.js';
+import { BlankTilePicker } from '../components/ui/BlankTilePicker.js';
 import { isValidSquare } from '@yantra/shared';
-import type { Tile, GamePlayer } from '@yantra/shared';
+import type { Tile, TileColour, GamePlayer } from '@yantra/shared';
 
 const SIDEBAR_W = 200;
 const MOBILE_BREAKPOINT = 768;
@@ -42,7 +43,9 @@ export default function GamePage() {
   const { resign } = useGame();
   const [selectedTile, setSelectedTile] = useState<Tile | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [blankPending, setBlankPending] = useState<{ tile: Tile; row: number; col: number } | null>(null);
   const isMobile = useIsMobile();
+  const { placeTile } = useGame();
 
   // Reconnect on mount if state missing
   useEffect(() => {
@@ -79,8 +82,42 @@ export default function GamePage() {
         return Math.max(20, Math.floor(Math.min(centerW, centerH) / 15));
       })();
 
+  const handleBlankDrop = (tile: Tile, row: number, col: number) => {
+    setBlankPending({ tile, row, col });
+  };
+
+  const handleBlankPick = (value: number, colour: TileColour) => {
+    if (!blankPending) return;
+    const assignedTile: Tile = { ...blankPending.tile, assignedValue: value, assignedColour: colour };
+    placeTile(assignedTile, blankPending.row, blankPending.col);
+    setBlankPending(null);
+  };
+
   if (isMobile) {
-    return <MobileLayout
+    return <>
+      <MobileLayout
+        gameState={gameState}
+        currentPlayer={currentPlayer}
+        isMyTurn={isMyTurn}
+        squareSize={squareSize}
+        selectedTile={selectedTile}
+        setSelectedTile={setSelectedTile}
+        hand={hand}
+        tilesRemaining={tilesRemaining}
+        playerId={playerId}
+        joinCode={joinCode}
+        navigate={navigate}
+        resign={resign}
+        showMenu={showMenu}
+        setShowMenu={setShowMenu}
+        onBlankTileDrop={handleBlankDrop}
+      />
+      {blankPending && <BlankTilePicker onPick={handleBlankPick} onCancel={() => setBlankPending(null)} />}
+    </>;
+  }
+
+  return <>
+    <DesktopLayout
       gameState={gameState}
       currentPlayer={currentPlayer}
       isMyTurn={isMyTurn}
@@ -95,25 +132,10 @@ export default function GamePage() {
       resign={resign}
       showMenu={showMenu}
       setShowMenu={setShowMenu}
-    />;
-  }
-
-  return <DesktopLayout
-    gameState={gameState}
-    currentPlayer={currentPlayer}
-    isMyTurn={isMyTurn}
-    squareSize={squareSize}
-    selectedTile={selectedTile}
-    setSelectedTile={setSelectedTile}
-    hand={hand}
-    tilesRemaining={tilesRemaining}
-    playerId={playerId}
-    joinCode={joinCode}
-    navigate={navigate}
-    resign={resign}
-    showMenu={showMenu}
-    setShowMenu={setShowMenu}
-  />;
+      onBlankTileDrop={handleBlankDrop}
+    />
+    {blankPending && <BlankTilePicker onPick={handleBlankPick} onCancel={() => setBlankPending(null)} />}
+  </>;
 }
 
 // Shared props type
@@ -132,6 +154,7 @@ interface LayoutProps {
   resign: () => void;
   showMenu: boolean;
   setShowMenu: (v: boolean | ((prev: boolean) => boolean)) => void;
+  onBlankTileDrop: (tile: Tile, row: number, col: number) => void;
 }
 
 function NoMovesBanner({ gameState, isMyTurn }: { gameState: any; isMyTurn: boolean }) {
@@ -166,7 +189,7 @@ function NoMovesBanner({ gameState, isMyTurn }: { gameState: any; isMyTurn: bool
   );
 }
 
-function DesktopLayout({ gameState, currentPlayer, isMyTurn, squareSize, selectedTile, setSelectedTile, hand, tilesRemaining, playerId, joinCode, navigate, resign, showMenu, setShowMenu }: LayoutProps) {
+function DesktopLayout({ gameState, currentPlayer, isMyTurn, squareSize, selectedTile, setSelectedTile, hand, tilesRemaining, playerId, joinCode, navigate, resign, showMenu, setShowMenu, onBlankTileDrop }: LayoutProps) {
   return (
     <div style={styles.screen}>
       {/* Left sidebar */}
@@ -211,6 +234,7 @@ function DesktopLayout({ gameState, currentPlayer, isMyTurn, squareSize, selecte
           squareSize={squareSize}
           selectedTile={selectedTile}
           onTileSelected={() => setSelectedTile(null)}
+          onBlankTileDrop={onBlankTileDrop}
         />
       </div>
 
@@ -243,7 +267,7 @@ function DesktopLayout({ gameState, currentPlayer, isMyTurn, squareSize, selecte
   );
 }
 
-function MobileLayout({ gameState, currentPlayer, isMyTurn, squareSize, selectedTile, setSelectedTile, hand, tilesRemaining, playerId, joinCode, navigate, resign, showMenu, setShowMenu }: LayoutProps) {
+function MobileLayout({ gameState, currentPlayer, isMyTurn, squareSize, selectedTile, setSelectedTile, hand, tilesRemaining, playerId, joinCode, navigate, resign, showMenu, setShowMenu, onBlankTileDrop }: LayoutProps) {
   return (
     <div style={mobileStyles.screen}>
       {/* Top bar: player info + turn */}
@@ -309,6 +333,7 @@ function MobileLayout({ gameState, currentPlayer, isMyTurn, squareSize, selected
           squareSize={squareSize}
           selectedTile={selectedTile}
           onTileSelected={() => setSelectedTile(null)}
+          onBlankTileDrop={onBlankTileDrop}
         />
       </div>
 
