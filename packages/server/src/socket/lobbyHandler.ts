@@ -5,6 +5,7 @@ import { createInitialState } from '../engine/gameStateMachine.js';
 import { createGame, upsertGamePlayers, upsertPlayer, getGameByJoinCode } from '../db/queries.js';
 import type { GameState } from '@yantra/shared';
 import type { CreateGamePayload, JoinGamePayload, StartGamePayload } from '@yantra/shared';
+import { createGameSchema, joinGameSchema, startGameSchema } from './validation.js';
 
 const nanoid = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 6);
 
@@ -19,7 +20,13 @@ export const joinCodeIndex = new Map<string, string>();
 
 export function registerLobbyHandlers(io: Server, socket: Socket): void {
   // ── Create game ──────────────────────────────────────────────────────────
-  socket.on('create:game', async (payload: CreateGamePayload) => {
+  socket.on('create:game', async (raw: unknown) => {
+    const parsed = createGameSchema.safeParse(raw);
+    if (!parsed.success) {
+      socket.emit('error', { message: 'Invalid payload.' });
+      return;
+    }
+    const payload = parsed.data as CreateGamePayload;
     try {
       const player = await upsertPlayer(payload.username);
       const joinCode = nanoid();
@@ -65,7 +72,13 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
   });
 
   // ── Join game ────────────────────────────────────────────────────────────
-  socket.on('join:game', async (payload: JoinGamePayload) => {
+  socket.on('join:game', async (raw: unknown) => {
+    const parsed = joinGameSchema.safeParse(raw);
+    if (!parsed.success) {
+      socket.emit('error', { message: 'Invalid payload.' });
+      return;
+    }
+    const payload = parsed.data as JoinGamePayload;
     try {
       const gameId = joinCodeIndex.get(payload.joinCode.toUpperCase());
       if (!gameId) {
@@ -115,7 +128,13 @@ export function registerLobbyHandlers(io: Server, socket: Socket): void {
   });
 
   // ── Start game ───────────────────────────────────────────────────────────
-  socket.on('start:game', async (payload: StartGamePayload) => {
+  socket.on('start:game', async (raw: unknown) => {
+    const parsed = startGameSchema.safeParse(raw);
+    if (!parsed.success) {
+      socket.emit('error', { message: 'Invalid payload.' });
+      return;
+    }
+    const payload = parsed.data as StartGamePayload;
     try {
       const lobby = pendingLobbies.get(payload.gameId);
       if (!lobby) {

@@ -71,10 +71,23 @@ begin
 end;
 $$;
 
--- ── Row Level Security (optional — enable if using anon client) ───────────────
--- alter table players enable row level security;
--- alter table games enable row level security;
--- etc.
+-- ── Row Level Security ──────────────────────────────────────────────────────
+-- All DB access goes through the server using the service_role key (bypasses
+-- RLS), so we enable RLS with no anon policies to lock out direct PostgREST
+-- access via the public anon key.
+alter table players        enable row level security;
+alter table games          enable row level security;
+alter table game_players   enable row level security;
+alter table game_moves     enable row level security;
+alter table rating_history enable row level security;
+
+-- Allow public read access to leaderboard data and player profiles
+create policy "Players are publicly readable"
+  on players for select using (true);
+
+-- Allow public read of rating history (for player stats pages)
+create policy "Rating history is publicly readable"
+  on rating_history for select using (true);
 
 -- ── Indexes ───────────────────────────────────────────────────────────────────
 create index if not exists idx_games_join_code on games(join_code);

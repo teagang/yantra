@@ -2,6 +2,8 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { playersRouter } from './routes/players.js';
 import { gamesRouter } from './routes/games.js';
 import { leaderboardRouter } from './routes/leaderboard.js';
@@ -15,8 +17,18 @@ const CLIENT_ORIGIN = process.env['CLIENT_ORIGIN'] ?? 'http://localhost:5173';
 
 const app = express();
 
+app.use(helmet());
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
+
+// Rate limit API routes: 100 requests per minute per IP
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api', apiLimiter);
 
 app.use('/api/players', playersRouter);
 app.use('/api/games', gamesRouter);
@@ -24,17 +36,19 @@ app.use('/api/leaderboard', leaderboardRouter);
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
-// Debug endpoint — lists open lobbies and active games
-app.get('/debug/lobbies', (_req, res) => {
-  res.json({
-    pending: [...pendingLobbies.values()].map((l) => ({
-      joinCode: l.joinCode,
-      players: l.players.map((p) => p.username),
-      mode: l.mode,
-    })),
-    active: [...activeGames.keys()],
+// Debug endpoint — lists open lobbies and active games (dev only)
+if (process.env['NODE_ENV'] !== 'production') {
+  app.get('/debug/lobbies', (_req, res) => {
+    res.json({
+      pending: [...pendingLobbies.values()].map((l) => ({
+        joinCode: l.joinCode,
+        players: l.players.map((p) => p.username),
+        mode: l.mode,
+      })),
+      active: [...activeGames.keys()],
+    });
   });
-});
+}
 
 // ── Socket.io ─────────────────────────────────────────────────────────────────
 

@@ -5,10 +5,17 @@ import { validateMove } from '../engine/moveValidator.js';
 import { calculateScore } from '../engine/scorer.js';
 import { updateGame, upsertGamePlayers, recordMove, applyRatingChanges } from '../db/queries.js';
 import { activeGames, stripPrivate, joinCodeIndex } from './lobbyHandler.js';
+import { submitMoveSchema, previewMoveSchema, requestStateSchema } from './validation.js';
 
 export function registerGameHandlers(io: Server, socket: Socket): void {
   // ── Submit move ──────────────────────────────────────────────────────────
-  socket.on('submit:move', async (payload: SubmitMovePayload) => {
+  socket.on('submit:move', async (raw: unknown) => {
+    const parsed = submitMoveSchema.safeParse(raw);
+    if (!parsed.success) {
+      socket.emit('game:invalidMove', { reason: 'Invalid payload.' });
+      return;
+    }
+    const payload = parsed.data as SubmitMovePayload;
     const entry = activeGames.get(payload.gameId);
     if (!entry) {
       socket.emit('game:invalidMove', { reason: 'Game not found.' });
@@ -103,10 +110,23 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
   });
 
   // ── Preview move ─────────────────────────────────────────────────────────
-  socket.on('preview:move', (payload: PreviewMovePayload) => {
+  socket.on('preview:move', (raw: unknown) => {
+    const parsed = previewMoveSchema.safeParse(raw);
+    if (!parsed.success) {
+      socket.emit('preview:result', { isValid: false, reason: 'Invalid payload.' });
+      return;
+    }
+    const payload = parsed.data as PreviewMovePayload;
     const entry = activeGames.get(payload.gameId);
     if (!entry) {
       socket.emit('preview:result', { isValid: false, reason: 'Game not found.' });
+      return;
+    }
+
+    // Verify this socket belongs to a player in the game
+    const isPlayer = [...entry.playerSockets.values()].includes(socket.id);
+    if (!isPlayer) {
+      socket.emit('preview:result', { isValid: false, reason: 'Not authorized.' });
       return;
     }
 
@@ -131,7 +151,13 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
   });
 
   // ── Request full state (reconnect) ───────────────────────────────────────
-  socket.on('request:state', (payload: RequestStatePayload) => {
+  socket.on('request:state', (raw: unknown) => {
+    const parsed = requestStateSchema.safeParse(raw);
+    if (!parsed.success) {
+      socket.emit('error', { message: 'Invalid payload.' });
+      return;
+    }
+    const payload = parsed.data as RequestStatePayload;
     const entry = activeGames.get(payload.gameId);
     if (!entry) {
       socket.emit('error', { message: 'Game not found.' });
@@ -141,6 +167,14 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
     const player = entry.state.players.find((p) => p.playerId === payload.playerId);
     if (!player) {
       socket.emit('error', { message: 'Player not in game.' });
+      return;
+    }
+
+    // Only allow reconnect if this socket is already registered OR the
+    // player's previous socket has disconnected (no longer in the map).
+    const existingSocket = entry.playerSockets.get(payload.playerId);
+    if (existingSocket && existingSocket !== socket.id) {
+      socket.emit('error', { message: 'Another session is active for this player.' });
       return;
     }
 
