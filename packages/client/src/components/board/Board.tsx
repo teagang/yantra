@@ -5,6 +5,7 @@ import { BoardSquareComponent } from './BoardSquare.js';
 import { useGameStore } from '../../store/gameStore.js';
 import { useGame } from '../../hooks/useGame.js';
 import { useDragDrop } from '../../hooks/useDragDrop.js';
+import { useTheme } from '../../theme/ThemeContext.js';
 
 interface Props {
   board: Record<string, BoardSquare>;
@@ -19,6 +20,8 @@ const GRID = 15;
 export function Board({ board, squareSize = 34, selectedTile, onTileSelected, onBlankTileDrop }: Props) {
   const { pendingPlacements } = useGameStore();
   const { placeTile, recallTile, isMyTurn } = useGame();
+  const { theme } = useTheme();
+  const isClassic = theme === 'classic';
   const myTurn = isMyTurn();
 
   const pendingMap = useMemo(() => {
@@ -67,11 +70,17 @@ export function Board({ board, squareSize = 34, selectedTile, onTileSelected, on
         display: 'grid',
         gridTemplateColumns: `repeat(${GRID}, ${squareSize}px)`,
         gap: 1,
-        background: '#EAE4D6',
+        background: isClassic ? 'transparent' : '#EAE4D6',
         padding: 0,
-        borderRadius: 0,
+        borderRadius: isClassic ? 12 : 0,
         overflow: 'auto',
         touchAction: 'pan-x pan-y',
+        ...(isClassic ? {
+          backgroundImage: 'url(/sprites/board/dark-background.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          padding: 4,
+        } : {}),
       }}
     >
       {Array.from({ length: GRID }, (_, r) =>

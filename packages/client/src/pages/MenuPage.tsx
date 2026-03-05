@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore.js';
 import { useSocket } from '../hooks/useSocket.js';
+import { useTheme } from '../theme/ThemeContext.js';
 import type { GameMode } from '@yantra/shared';
 
 const COLOURS = { red: '#B55B4A', blue: '#4D7A8E', yellow: '#C8A840', purple: '#7A6A96' };
@@ -9,6 +10,7 @@ const COLOURS = { red: '#B55B4A', blue: '#4D7A8E', yellow: '#C8A840', purple: '#
 export default function MenuPage() {
   const navigate = useNavigate();
   const { username, setIdentity, setLobby } = useGameStore();
+  const { theme, setTheme } = useTheme();
   const [name, setName] = useState(username);
   const [mode, setMode] = useState<GameMode>('unranked');
   const [speedPlay, setSpeedPlay] = useState(false);
@@ -126,6 +128,30 @@ export default function MenuPage() {
         }
         .y-btn-sm:hover { background: #3A4E32; color: #fff; border-color: #3A4E32; }
       `}</style>
+
+      {/* Theme toggle */}
+      <button
+        onClick={() => setTheme(theme === 'default' ? 'classic' : 'default')}
+        style={{
+          position: 'absolute',
+          top: 12,
+          right: 12,
+          zIndex: 2,
+          padding: '0.4rem 0.7rem',
+          borderRadius: 4,
+          border: '2px solid #A89878',
+          background: theme === 'classic' ? '#7A6A52' : 'transparent',
+          color: theme === 'classic' ? '#F2EDD7' : '#7A6A52',
+          fontSize: '0.75rem',
+          fontWeight: 600,
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+          transition: 'background 0.15s, color 0.15s',
+          letterSpacing: '0.02em',
+        }}
+      >
+        {theme === 'classic' ? 'Classic Art' : 'Modern'}
+      </button>
 
       {/* Decorative squares */}
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>

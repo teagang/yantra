@@ -1,4 +1,5 @@
 import type { Tile } from '@yantra/shared';
+import { useTheme, getTileSprite } from '../../theme/ThemeContext.js';
 
 const COLOUR_MAP: Record<string, string> = {
   red: '#B88870',
@@ -15,10 +16,48 @@ interface Props {
 }
 
 export function PlacedTile({ tile, size, pending = false, onClick }: Props) {
+  const { theme } = useTheme();
   const bg = tile.colour ? COLOUR_MAP[tile.colour] : tile.isEight ? '#707850' : '#C0B49A';
   const displayValue = tile.isBlank
     ? (tile.assignedValue ? String(tile.assignedValue) : '?')
     : String(tile.value);
+
+  if (theme === 'classic') {
+    const effectiveColour = tile.assignedColour ?? tile.colour;
+    const effectiveValue = tile.assignedValue ?? tile.value;
+    const sprite = getTileSprite(effectiveColour, effectiveValue, tile.isBlank, tile.isEight);
+
+    return (
+      <div
+        onClick={onClick}
+        style={{
+          width: size,
+          height: size,
+          position: 'relative',
+          cursor: pending ? 'pointer' : 'default',
+          transform: pending ? 'scale(1.08)' : 'scale(1)',
+          transition: 'transform 0.1s',
+          userSelect: 'none',
+        }}
+      >
+        <img
+          src={sprite?.src}
+          alt={displayValue}
+          draggable={false}
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'block',
+            filter: sprite?.filter,
+            boxShadow: pending
+              ? '0 0 0 2px #F2EDD7, 0 2px 8px #3B281B44'
+              : '0 1px 3px #3B281B33',
+            borderRadius: 3,
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div
